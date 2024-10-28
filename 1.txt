@@ -1,0 +1,40 @@
+1
+Ivan Susanin
+1580
+1645
+Russia
+Krestyanen
+Pomogal Tsaru
+9.5
+2
+Petr I
+1672
+1725
+Russia
+Tsar
+Reformator
+10
+3
+Napoleoh Bonapart
+1769
+1821
+France
+Polcovodec
+Imperator
+9.8
+4
+Mahatma Gandi
+1869
+1948
+India
+Politick
+Lider nezavisimosti
+10
+5
+Albert Einshtein
+1879
+1955
+Germany
+Shizik
+Teoria otnositelnosti
+9.9
