@@ -1,0 +1,298 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <limits>
+#include <ctime>
+
+using namespace std;
+
+struct HistoricalFigure {
+    int id;
+    string name;
+    int birthYear;
+    int deathYear;
+    string country;
+    string occupation;
+    string famousWork;
+    double score;
+};
+
+string center(const string& text, int width) {
+    int padding = width - text.size();
+    int padLeft = padding / 2;
+    int padRight = padding - padLeft;
+    return (string(padLeft, ' ') + text + string(padRight, ' '));
+}
+
+void push_back(HistoricalFigure*& figures, int& arraySize, int& arrayCapacity, HistoricalFigure figure) {
+    if (arraySize >= arrayCapacity) {
+        arrayCapacity = (arrayCapacity == 0) ? 1 : arrayCapacity * 2;
+        HistoricalFigure* newFigures = new HistoricalFigure[arrayCapacity];
+        for (int i = 0; i < arraySize; i++) {
+            newFigures[i] = figures[i];
+        }
+        delete[] figures;
+        figures = newFigures;
+    }
+    figures[arraySize++] = figure;
+}
+
+void freeMemory(HistoricalFigure*& figures, int& arraySize, int& arrayCapacity) {
+    delete[] figures;
+    figures = nullptr;
+    arraySize = 0;
+    arrayCapacity = 0;
+}
+
+bool readDataFromFile(const string& filename, HistoricalFigure*& figures, int& arraySize, int& arrayCapacity) {
+    ifstream file(filename);
+    if (!file) {
+        cerr << "Ошибка открытия файла: " << filename << endl;
+        do {
+            cout << '\n' << "Press the Enter key to continue.";
+        } while (cin.get() != '\n');
+        return false;
+    }
+
+    HistoricalFigure figure;
+    while (file >> figure.id) {
+        file.ignore();
+        getline(file, figure.name);
+        file >> figure.birthYear >> figure.deathYear;
+        file.ignore();
+        getline(file, figure.country);
+        getline(file, figure.occupation);
+        getline(file, figure.famousWork);
+        file >> figure.score;
+        push_back(figures, arraySize, arrayCapacity, figure);
+    }
+    file.close();
+    return true;
+}
+
+void displayData(HistoricalFigure* figures, int arraySize) {
+    system("clear");
+    int widths[8] = {5, 50, 25, 25, 25, 25, 50, 15};
+    cout << "+";
+    for (const auto& width : widths) {
+        cout << setfill('-') << setw(width) << "" << "+";
+    }
+    cout << setfill(' ') << "\n";
+    string headers[8] = {"ID", "Name", "Birth Year", "Death Year", "Country", "Occupation", "Famous Work", "Score"};
+    cout << "|";
+    for (size_t i = 0; i < 8; i++) {
+        cout << center(headers[i], widths[i]) << "|";
+    }
+    cout << "\n";
+
+    cout << "+";
+    for (const auto& width : widths) {
+        cout << setfill('-') << setw(width) << "" << "+";
+    }
+    cout << setfill(' ') << "\n";
+    for (int i = 0; i < arraySize; i++) {
+        const auto& figure = figures[i];
+        cout << "|";
+        cout << center(to_string(figure.id), widths[0]) << "|"
+             << center(figure.name, widths[1]) << "|"
+             << center(to_string(figure.birthYear), widths[2]) << "|"
+             << center(to_string(figure.deathYear), widths[3]) << "|"
+             << center(figure.country, widths[4]) << "|"
+             << center(figure.occupation, widths[5]) << "|"
+             << center(figure.famousWork, widths[6]) << "|"
+             << center(to_string(figure.score), widths[7]) << "|\n";
+        cout << "+";
+        for (const auto& width : widths) {
+            cout << setfill('-') << setw(width) << "" << "+";
+        }
+        cout << setfill(' ') << "\n";
+    }
+
+    do {
+    } while (cin.get() != '\n');
+}
+
+void editData(HistoricalFigure* figures, int arraySize, int id) {
+    bool isEnd1 = false;
+    bool isEnd2 = false;
+    bool isEnd3 = false;
+    int countSuccess = 0;
+
+    system("clear");
+    for (int i = 0; i < arraySize; i++) {
+        countSuccess = 0;
+        if (figures[i].id == id) {
+            system("clear");
+            cout << "Введите новое имя: ";
+            getline(cin, figures[i].name);
+            system("clear");
+            cout << "Введите новую страну: ";
+            getline(cin, figures[i].country);
+            system("clear");
+            cout << "Введите новую профессию: ";
+            getline(cin, figures[i].occupation);
+            cout << "Введите новое весомое достижение: ";
+            getline(cin, figures[i].famousWork);
+            system("clear");
+            while (!isEnd1) {
+                system("clear");
+                cout << "Введите новую оценку значимости";
+                cin >> figures[i].score;
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    system("clear");
+                    cout << "Некорректный ввод." << endl;
+                    do {
+                        cout << '\n' << "Press the Enter key to continue.";
+                    } while (cin.get() != '\n');
+                } else {
+                    countSuccess++;
+                    isEnd1 = true;
+                }
+            }
+            while (!isEnd2) {
+                system("clear");
+                cout << "Введите новый год рождения: ";
+                cin >> figures[i].birthYear;
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    system("clear");
+                    cout << "Некорректный ввод." << endl;
+                    do {
+                        cout << '\n' << "Press the Enter key to continue.";
+                    } while (cin.get() != '\n');
+                } else {
+                    countSuccess++;
+                    isEnd2 = true;
+                }
+            }
+            while (!isEnd3) {
+                system("clear");
+                cout << "Введите новый год смерти: ";
+                cin >> figures[i].deathYear;
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    system("clear");
+                    cout << "Некорректный ввод." << endl;
+                    do {
+                        cout << '\n' << "Press the Enter key to continue.";
+                    } while (cin.get() != '\n');
+                } else {
+                    countSuccess++;
+                    isEnd3 = true;
+                }
+            }
+            cin.ignore();
+            if (countSuccess == 3) {
+                return;
+            }
+        }
+    }
+    cout << "Запись с ID " << id << " не найдена." << endl;
+    do {
+        cout << '\n' << "Press the Enter key to continue.";
+    } while (cin.get() != '\n');
+}
+
+void saveDataToFile(const string& filename, HistoricalFigure* figures, int arraySize) {
+    ofstream file(filename);
+    if (!file) {
+        system("clear");
+        cerr << "Ошибка открытия файла для записи: " << filename << endl;
+        do {
+            cout << '\n' << "Press the Enter key to continue.";
+        } while (cin.get() != '\n');
+        return;
+    }
+
+    for (int i = 0; i < arraySize; i++) {
+        const auto& figure = figures[i];
+        file << figure.id << endl << figure.name << endl
+             << figure.birthYear << endl << figure.deathYear << endl
+             << figure.country << endl << figure.occupation << endl
+             << figure.famousWork << endl << figure.score << endl;
+    }
+    file.close();
+}
+
+double calculateAverageAge(HistoricalFigure* figures, int arraySize) {
+    if (arraySize == 0) {
+        return 0.0;
+    }
+    int currentYear = time(nullptr) / (60 * 60 * 24 * 365) + 1970;
+    double totalAge = 0.0;
+
+    for (int i = 0; i < arraySize; i++) {
+        int deathYear = figures[i].deathYear > 0 ? figures[i].deathYear : currentYear;
+        int age = deathYear - figures[i].birthYear;
+        totalAge += age;
+    }
+    do {
+    } while (cin.get() != '\n');
+    return totalAge / arraySize;
+}
+
+int main() {
+    system("clear");
+    HistoricalFigure* figures = nullptr;
+    int arraySize = 0;
+    int arrayCapacity = 0;
+
+    string filename;
+    bool isFile = false;
+    while (!isFile) {
+        cout << "Введите имя файла для чтения данных: ";
+        cin >> filename;
+        cin.ignore(); // очищаем буфер
+        cout << filename << endl;
+        if (readDataFromFile(filename, figures, arraySize, arrayCapacity)) {
+            isFile = true;
+        } else {
+            cerr << "Ошибка открытия файла. Пожалуйста, попробуйте снова." << endl;
+        }
+    }
+
+    int choice;
+    do {
+        system("clear");
+        cout << "Выберите опцию:" << endl;
+        cout << "1. Отобразить данные" << endl;
+        cout << "2. Редактировать данные" << endl;
+        cout << "3. Сохранить данные в файл" << endl;
+        cout << "4. Вычислить средний возраст" << endl;
+        cout << "0. Выйти" << endl;
+        cin >> choice;
+        cin.ignore();  // очищаем буфер ввода
+
+        switch (choice) {
+            case 1:
+                displayData(figures, arraySize);
+                break;
+            case 2:
+                int id;
+                cout << "Введите ID для редактирования: ";
+                cin >> id;
+                cin.ignore();  // очищаем буфер
+                editData(figures, arraySize, id);
+                break;
+            case 3:
+                saveDataToFile(filename, figures, arraySize);
+                break;
+            case 4:
+                cout << "Средний возраст: " << calculateAverageAge(figures, arraySize) << endl;
+                break;
+            case 0:
+                freeMemory(figures, arraySize, arrayCapacity);
+                break;
+            default:
+                cout << "Некорректный ввод. Пожалуйста, выберите снова." << endl;
+        }
+    } while (choice != 0);
+
+    return 0;
+}
+
